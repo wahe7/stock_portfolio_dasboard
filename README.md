@@ -17,7 +17,7 @@ A modern, responsive stock portfolio management dashboard built with Next.js, Ty
 - **Sector Analysis**: Visual breakdown of your investments by sector
 - **Real-time Performance**: Track gains/losses and portfolio value
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Secure Authentication**: Protected routes with JWT
+- **Secure Authentication**: Protected routes with session-based authentication
 - **Loading States**: Smooth loading indicators for better UX
 
 ## 🚀 Tech Stack
@@ -34,7 +34,8 @@ A modern, responsive stock portfolio management dashboard built with Next.js, Ty
   - Express
   - Prisma (ORM)
   - PostgreSQL
-  - JWT (Authentication)
+  - Redis (Caching & Rate Limiting)
+  - Express Rate Limit (API Rate Limiting)
 
 ## 🛠️ Getting Started
 
@@ -43,6 +44,7 @@ A modern, responsive stock portfolio management dashboard built with Next.js, Ty
 - Node.js 18+ 
 - npm or yarn
 - PostgreSQL database
+- Redis Server
 
 ### Installation
 
@@ -70,11 +72,18 @@ A modern, responsive stock portfolio management dashboard built with Next.js, Ty
    
    # Backend (in /backend/.env)
    DATABASE_URL="postgresql://user:password@localhost:5432/portfolio_db"
-   JWT_SECRET=your_jwt_secret_here
+   REDIS_URL="redis://localhost:6379"
+   RATE_LIMIT_WINDOW_MS=900000  # 15 minutes
+   RATE_LIMIT_MAX_REQUESTS=100  # Max requests per window per IP
    ```
 
-4. **Set up the database**
+4. **Set up the database and Redis**
    ```bash
+   # Start Redis server (if not running)
+   # On macOS (if installed via Homebrew):
+   brew services start redis
+   
+   # Set up PostgreSQL database
    cd backend
    npx prisma migrate dev --name init
    npx prisma generate
@@ -107,6 +116,8 @@ The application uses `yfinance` to fetch real-time stock market data. Here's how
 ### Implementation Details:
 - Python script (`fetchCMP.py`) handles the data fetching
 - Uses Yahoo Finance API through the `yfinance` library
+- Implements Redis caching to reduce API calls and improve performance
+- Includes rate limiting to prevent abuse of the API
 - Returns data in JSON format for easy consumption
 - Handles errors gracefully for unavailable symbols
 
