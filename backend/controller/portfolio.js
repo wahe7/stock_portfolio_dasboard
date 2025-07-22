@@ -149,3 +149,31 @@ exports.deleteStock = async(req,res)=>{
     res.status(400).json({message:"Something went wrong",error:error})
   }
 }
+
+exports.editStock = async(req,res)=>{
+  const {userId,stockId}=req.params;
+  const stock = await prisma.portfolio.findUnique({
+    where:{
+      id:parseInt(stockId),
+      userId:parseInt(userId)
+    }
+  })
+  if(!stock){
+    return res.status(400).json({message:"Stock not found"})
+  }
+  try{
+    const portfolio = await prisma.portfolio.update({
+      where:{
+        id:parseInt(stockId),
+        userId:parseInt(userId)
+      },
+      data:{
+        stockQuantity:req.body.stockQuantity,
+        stockPurchasePrice:req.body.stockPurchasePrice
+      }
+    })
+    res.status(200).json({message:"Portfolio updated successfully"})
+  }catch(error){
+    res.status(400).json({message:"Something went wrong",error:error})
+  }
+}
