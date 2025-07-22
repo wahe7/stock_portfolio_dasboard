@@ -31,6 +31,7 @@ type Props = {
 };
 
 const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [editFormData, setEditFormData] = useState({
     id: 0,
     name: '',
@@ -58,6 +59,7 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     const userId = localStorage.getItem('userId');
     if (!userId) return alert('User not logged in');
     if (!confirm('Are you sure you want to delete this stock?')) return;
+    setIsLoading(true);
 
     try {
       const res = await fetch(`http://localhost:3001/api/portfolio/${userId}/${stockId}`, {
@@ -73,6 +75,8 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     } catch (error) {
       console.error('Error deleting stock:', error);
       alert('An error occurred while deleting the stock.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,6 +84,7 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     e.preventDefault();
     const userId = localStorage.getItem('userId');
     if (!userId) return;
+    setIsLoading(true);
 
     const res = await fetch(`http://localhost:3001/api/portfolio/${userId}/${editFormData.id}`, {
       method: 'PUT',
@@ -90,10 +95,14 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
       }),
     });
 
-    const data = await res.json();
-    alert(data.message);
-    setShowEditForm(false);
-    fetchPortfolio();
+    try {
+      const data = await res.json();
+      alert(data.message);
+      setShowEditForm(false);
+      await fetchPortfolio();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const columns: ColumnDef<Stock>[] = [
@@ -160,47 +169,71 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     value,
   }));
 
+  // Shimmer effect component
+  const ShimmerRow = () => (
+    <tr className="animate-pulse">
+      {Array(8).fill(0).map((_, i) => (
+        <td key={i} className="px-4 py-4">
+          <div className="h-4 bg-gray-200 rounded"></div>
+        </td>
+      ))}
+    </tr>
+  );
+
   return (
-    <div className="border rounded shadow flex flex-col bg-white" style={{ height: '90vh' }}>
-      <div className="overflow-x-auto overflow-y-auto flex-1 relative">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100 sticky top-0 z-10">
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-2 text-left text-sm font-medium text-gray-700"
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {stocks?.length === 0 ? (
-              <tr>
-                <td colSpan={12} className="text-center py-4 text-gray-500">
-                  No stocks added yet.
-                </td>
-              </tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id} className="px-4 py-2 text-sm text-gray-800">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
+    <div className="space-y-6 relative">
+      {isLoading && (
+        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+      <div className="border rounded shadow flex flex-col bg-white" style={{ height: '90vh' }}>
+        <div className="overflow-x-auto overflow-y-auto flex-1 relative">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100 sticky top-0 z-10">
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th
+                      key={header.id}
+                      className="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
                   ))}
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex flex-col gap-4 justify-center items-center border-t py-4">
-        <SectorPieChart data={pieChartData} />
+              ))}
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200 relative">
+              {isLoading ? (
+                <>
+                  <ShimmerRow />
+                  <ShimmerRow />
+                  <ShimmerRow />
+                </>
+              ) : stocks?.length === 0 ? (
+                <tr>
+                  <td colSpan={12} className="text-center py-4 text-gray-500">
+                    No stocks added yet.
+                  </td>
+                </tr>
+              ) : (
+                table.getRowModel().rows.map(row => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id} className="px-4 py-2 text-sm text-gray-800">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex flex-col gap-4 justify-center items-center border-t py-4">
+          <SectorPieChart data={pieChartData} />
+        </div>
       </div>
       
       {showEditForm && (
