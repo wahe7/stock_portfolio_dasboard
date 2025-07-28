@@ -4,7 +4,12 @@ import {PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'rechar
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#aa44ff', '#FF6666'];
 
-export default function SectorPieChart({ data }: { data: any[] }) {
+interface SectorData {
+  name: string;
+  value: number;
+}
+
+export default function SectorPieChart({ data }: { data: SectorData[] }) {
   return (
     <div className="w-full md:w-1/2 p-4">
       <h2 className="text-xl font-semibold mb-4 text-center text-black">Sector-wise Investment</h2>
