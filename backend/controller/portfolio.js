@@ -27,7 +27,6 @@ exports.addPortfolio = async(req,res)=>{
         resolve(cmpData[symbol]?.sector);
       });
     });
-
     try{
         const portfolio = await prisma.portfolio.create({
             data:{

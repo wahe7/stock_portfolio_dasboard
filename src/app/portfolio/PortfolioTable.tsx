@@ -87,7 +87,7 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     if (!userId) return;
     setIsLoading(true);
 
-    const res = await fetch(`${API.PORTFOLIO}/api/portfolio/${userId}/${editFormData.id}`, {
+    const res = await fetch(`${API.PORTFOLIO}/${userId}/${editFormData.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

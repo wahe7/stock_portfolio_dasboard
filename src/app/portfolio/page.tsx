@@ -14,7 +14,6 @@ export default function PortfolioPage() {
   const fetchPortfolio = async () => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
-
     const res = await fetch(`${API.PORTFOLIO}/${userId}`);
     const data = await res.json();
     setStocks(data.userPortfolio);
@@ -38,21 +37,21 @@ export default function PortfolioPage() {
     }
 
     setLoading(true);
+    const res = await fetch(API.PORTFOLIO, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: userId,
+          stockName: formData.name,
+          stockExchange: formData.exchange,
+          stockQuantity: parseInt(formData.quantity),
+          stockPurchasePrice: parseFloat(formData.price)
+        })
+      });
 
-    const res = await fetch(`${API.PORTFOLIO}/addportfolio`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: userId,
-        stockName: formData.name,
-        stockExchange: formData.exchange,
-        stockQuantity: parseInt(formData.quantity),
-        stockPurchasePrice: parseFloat(formData.price)
-      })
-    });
     setLoading(false);
-    setFormData({ name: '', quantity: '', price: '', exchange: '' });
-    setShowForm(false);
+      setFormData({ name: '', quantity: '', price: '', exchange: '' });
+      setShowForm(false);
 
     if (res.ok) {
       alert("Stock added successfully");
