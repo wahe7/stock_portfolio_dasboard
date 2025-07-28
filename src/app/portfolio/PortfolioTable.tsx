@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import SectorPieChart from './sectorPieChart';
 import EditForm from './editForm';
+import { API } from '@/config';
 
 import {
   useReactTable,
@@ -62,7 +63,7 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:3001/api/portfolio/${userId}/${stockId}`, {
+      const res = await fetch(`${API.PORTFOLIO}/${userId}/${stockId}`, {
         method: 'DELETE',
       });
 
@@ -86,7 +87,7 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     if (!userId) return;
     setIsLoading(true);
 
-    const res = await fetch(`http://localhost:3001/api/portfolio/${userId}/${editFormData.id}`, {
+    const res = await fetch(`${API.PORTFOLIO}/api/portfolio/${userId}/${editFormData.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

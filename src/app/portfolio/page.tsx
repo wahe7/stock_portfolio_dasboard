@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import PortfolioTable from './PortfolioTable';
 import Navbar from '@/components/navbar';
+import { API } from '@/config';
 
 export default function PortfolioPage() {
   const [stocks, setStocks] = useState([]);
@@ -14,7 +15,7 @@ export default function PortfolioPage() {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    const res = await fetch(`http://localhost:3001/api/portfolio/${userId}`);
+    const res = await fetch(`${API.PORTFOLIO}/${userId}`);
     const data = await res.json();
     setStocks(data.userPortfolio);
   };
@@ -38,7 +39,7 @@ export default function PortfolioPage() {
 
     setLoading(true);
 
-    const res = await fetch("http://localhost:3001/api/addportfolio", {
+    const res = await fetch(`${API.PORTFOLIO}/addportfolio`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

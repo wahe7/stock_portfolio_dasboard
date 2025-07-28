@@ -24,7 +24,7 @@ exports.addPortfolio = async(req,res)=>{
         if(!cmpData){
           return res.status(400).json({message:"Not valid stock"})
         }
-        resolve(cmpData[symbol].sector);
+        resolve(cmpData[symbol]?.sector);
       });
     });
 
