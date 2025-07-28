@@ -160,15 +160,14 @@ const PortfolioTable: React.FC<Props> = ({ stocks, fetchPortfolio }) => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const sectorData = stocks.reduce((acc, stock) => {
-    acc[stock.sector] = (acc[stock.sector] || 0) + stock.investment;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const pieChartData = Object.entries(sectorData).map(([sector, value]) => ({
-    name: sector,
-    value,
-  }));
+  const pieChartData = stocks?.length > 0 
+    ? Object.entries(
+        stocks.reduce((acc, stock) => {
+          acc[stock.sector] = (acc[stock.sector] || 0) + stock.investment;
+          return acc;
+        }, {} as Record<string, number>)
+      ).map(([name, value]) => ({ name, value }))
+    : [];
 
   // Shimmer effect component
   const ShimmerRow = () => (
