@@ -6,6 +6,9 @@ require('dotenv').config();
 const app = express();
 app.use(express.json())
 app.use(cors());
+
+app.set('trust proxy', true);
+
 const limit = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -13,6 +16,7 @@ const limit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 })
+
 app.use(limit);
 
 app.get("/",(req,res)=>{
