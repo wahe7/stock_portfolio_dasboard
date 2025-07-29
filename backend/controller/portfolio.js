@@ -24,10 +24,11 @@ exports.addPortfolio = async(req,res)=>{
         if(!cmpData){
           return res.status(400).json({message:"Not valid stock"})
         }
+        console.log("cmpData",cmpData);
         resolve(cmpData[symbol]?.sector);
       });
     });
-    console.log("fetchSector",fetchSector || "Not valid stock");
+
     try{
         const portfolio = await prisma.portfolio.create({
             data:{
