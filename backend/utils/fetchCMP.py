@@ -2,7 +2,7 @@ import sys
 import yfinance as yf
 import json
 
-symbols = sys.argv[1:]  # takes multiple symbols as args
+symbols = sys.argv[1:]
 
 results = {}
 for symbol in symbols:
@@ -11,6 +11,7 @@ for symbol in symbols:
         info = ticker.info
         results[symbol] = {"sector":info["sector"], "cmp":info["currentPrice"], "recommendation":info["recommendationKey"], "name":info["shortName"], "pe":info["trailingPE"]}
     except Exception as e:
-        results[symbol] = None  # or "error"
+        print(e)
+        results[symbol] = None
 
 print(json.dumps(results))
